@@ -1,6 +1,6 @@
-diff '--color=auto' -ruN drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c
---- drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c	2025-07-22 11:29:41.873104754 +0200
-+++ drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c	2025-07-22 11:29:26.229679981 +0200
+diff '--color=auto' -ruN linux/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c linux-patched/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c
+--- linux/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c	2025-07-22 11:29:41.873104754 +0200
++++ linux-patched/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c	2025-07-22 11:29:26.229679981 +0200
 @@ -45,8 +45,8 @@
  #undef pr_debug
  
