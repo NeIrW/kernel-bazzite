@@ -72,7 +72,7 @@ jobs:
           FEDORA_VERSION="${{ matrix.fedora_version }}"
           sudo podman build . --tag 'fedora_builder' \
             --build-arg UID=$(id -u) --build-arg GID=$(id -g) \
-            --build-arg FEDORA_VERSION=${FEDORA_VERSION:-41}
+            --build-arg FEDORA_VERSION=${FEDORA_VERSION:-42}
       - name: Write Changelog
         run: |
           sudo podman run --rm -v $(pwd):/workspace fedora_builder \
@@ -88,7 +88,7 @@ jobs:
             --env CCACHE_MAXSIZE=5G \
             --env CCACHE_COMPRESS=1 \
             fedora_builder fedpkg \
-            --name kernel --namespace rpms --release "f${FEDORA_VERSION:-41}" \
+            --name kernel --namespace rpms --release "f${FEDORA_VERSION:-42}" \
             local --arch ${ARCH:-x86_64} --with baseonly \
             --without rust \
             --builddir build --buildrootdir buildroot
