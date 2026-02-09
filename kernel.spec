@@ -1055,6 +1055,7 @@ Source4002: gating.yaml
 
 Patch1: patch-%{patchversion}-redhat.patch
 Patch2: handheld.patch
+Patch1000：linux-kernel-bc250.patch
 %endif
 
 # empty final patch to facilitate testing of kernel patches
