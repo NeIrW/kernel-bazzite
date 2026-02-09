@@ -30,20 +30,21 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+          
       - name: Inject BC250 Patch
         run: |
-               # 1. 下载补丁（保持不变）
-                curl -LO https://github.com/NeIrW/bazzite-kernel-patch/raw/refs/heads/main/linux-kernel-bc250.patch
-
-                # 2. 注册补丁（保持不变）
-                sed -i '/^Source0/a Patch1000: linux-kernel-bc250.patch' kernel.spec
-                
-                # 3. 修正插入点和参数：
-                # 我们不再插在 %prep 后面，而是插在 ApplyOptionalPatch 之后，
-                # 或者插在 Fedora 脚本解压源码完成后的位置。
-                # 既然你的补丁里有 linux/ 前缀，这里必须用 -p1
-                sed -i '/ApplyOptionalPatch linux-kernel-test.patch/a patch -p1 < %{PATCH1000}' kernel.spec
-                
+            # 1. 下载补丁
+            curl -LO https://github.com/NeIrW/bazzite-kernel-patch/raw/refs/heads/main/linux-kernel-bc250.patch
+            
+            # 2. 注入补丁声明和指令 (使用 -p1 适配路径)
+            sed -i '/^Source0/a Patch1000: linux-kernel-bc250.patch' kernel.spec
+            sed -i '/ApplyOptionalPatch linux-kernel-test.patch/a patch -p1 < %{PATCH1000}' kernel.spec
+            
+            # 3. 【新加入的一行】禁用 Rust 支持以绕过构建错误
+            sed -i 's/%define with_rust.*/%define with_rust 0/g' kernel.spec
+            
+            echo "Patch injected and Rust disabled in kernel.spec"
+            
       - name: Restore ccache
         # Don't use cache on releases as github does not allow it
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
