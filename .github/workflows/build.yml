@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "Applying BC-250 frequency patch from root..."
           if [ -f linux-kernel-bc250.patch ]; then
-            patch -p2 < linux-kernel-bc250.patch
+            patch -p1 < linux-kernel-bc250.patch
           else
             echo "Patch file not found! Downloading from raw URL..."
             curl -L https://raw.githubusercontent.com/vietsman/bazzite-kernel-patch/main/linux-kernel-bc250.patch -o linux-kernel-bc250.patch
