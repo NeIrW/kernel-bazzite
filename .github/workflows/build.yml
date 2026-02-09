@@ -33,17 +33,29 @@ jobs:
           
       - name: Inject BC250 Patch
         run: |
-            # 1. 下载补丁
-            curl -LO https://github.com/NeIrW/bazzite-kernel-patch/raw/refs/heads/main/linux-kernel-bc250.patch
-            
-            # 2. 注入补丁声明和指令 (使用 -p1 适配路径)
-            sed -i '/^Source0/a Patch1000: linux-kernel-bc250.patch' kernel.spec
-            sed -i '/ApplyOptionalPatch linux-kernel-test.patch/a patch -p1 < %{PATCH1000}' kernel.spec
-            
-            # 3. 【新加入的一行】禁用 Rust 支持以绕过构建错误
-            sed -i 's/%define with_rust.*/%define with_rust 0/g' kernel.spec
-            
-            echo "Patch injected and Rust disabled in kernel.spec"
+                # 1. 下载补丁
+                curl -LO https://github.com/NeIrW/bazzite-kernel-patch/raw/refs/heads/main/linux-kernel-bc250.patch
+                
+                # 2. 注入补丁声明
+                sed -i '/^Source0/a Patch1000: linux-kernel-bc250.patch' kernel.spec
+                
+                # 3. 注入打补丁指令 (适配 Bazzite 的两种可能性)
+                # 如果有 ApplyOptionalPatch，就在它后面插入
+                # 否则直接插在 %prep 后面
+                if grep -q "ApplyOptionalPatch linux-kernel-test.patch" kernel.spec; then
+                  sed -i '/ApplyOptionalPatch linux-kernel-test.patch/a patch -p1 < %{PATCH1000}' kernel.spec
+                else
+                  sed -i '/^%prep/a patch -p1 < %{PATCH1000}' kernel.spec
+                fi
+      
+                # 4. 彻底禁用 Rust (覆盖三种可能的定义方式)
+                sed -i 's/%define with_rust.*/%define with_rust 0/g' kernel.spec
+                sed -i 's/%bcond_without rust/%bcond_with rust/g' kernel.spec
+                echo "%define with_rust 0" >> kernel.spec  # 在文件末尾强行追加以确保覆盖
+                
+                # 5. 打印验证（可以在 Log 中查看修改是否成功）
+                echo "---- Verifying kernel.spec changes ----"
+                grep -E "Patch1000|patch -p1|with_rust" kernel.spec
             
       - name: Restore ccache
         # Don't use cache on releases as github does not allow it
@@ -65,6 +77,7 @@ jobs:
         run: |
           sudo podman run --rm -v $(pwd):/workspace fedora_builder \
             python3 release_changelog.py
+            
       - name: Compile Kernel
         run: |
           FEDORA_VERSION="${{ matrix.fedora_version }}"
@@ -77,6 +90,7 @@ jobs:
             fedora_builder fedpkg \
             --name kernel --namespace rpms --release "f${FEDORA_VERSION:-41}" \
             local --arch ${ARCH:-x86_64} --with baseonly \
+            --without rust \
             --builddir build --buildrootdir buildroot
       
       - name: Print ccache stats
