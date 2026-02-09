@@ -1,4 +1,4 @@
-name: Build Bazzite Kernel
+name: Build Bazzite Kernel orginl
 
 on:
   workflow_dispatch:
